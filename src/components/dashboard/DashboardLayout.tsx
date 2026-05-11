@@ -96,7 +96,7 @@ const DashboardLayout = ({ children, items }: { children: React.ReactNode, items
           <div className="p-8 border-b border-white/10">
             <Link to="/" className="flex items-center bg-white p-1 rounded-lg shadow-sm">
               <img 
-                src="/images/logoMB.png" 
+                src={`${import.meta.env.BASE_URL}images/logoMB.png`} 
                 alt="MERVEILLEBAT" 
                 className="h-20 w-auto relative z-10" 
                 referrerPolicy="no-referrer" 

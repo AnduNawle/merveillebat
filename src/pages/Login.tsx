@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { LogIn, Github, Mail, Lock, ArrowRight } from 'lucide-react';
@@ -10,6 +10,16 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'SUPABASE_AUTH_SUCCESS') {
+        navigate('/');
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +43,18 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       setError('');
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: true
         }
       });
       if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, 'supabase_auth', 'width=600,height=700');
+      }
     } catch (err: any) {
       console.error('Google Auth Error:', err);
       setError('Erreur lors de la connexion Google : ' + (err.message || 'Erreur inconnue'));
